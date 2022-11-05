@@ -29,10 +29,14 @@ const NestedPrice = ({ form, nestedPrice }: Props) => {
             "absolute top-1/2 -translate-y-1/2 left-xsmall text-grey-40 transition-all",
             {
               "rotate-90": state,
+            },
+            {
+              hidden: regionPrices.length === 0,
             }
           )}
           type="button"
           onClick={toggle}
+          disabled={regionPrices.length === 0}
         >
           <TriangleRightIcon />
         </button>
@@ -47,7 +51,7 @@ const NestedPrice = ({ form, nestedPrice }: Props) => {
             <span className="inter-base-regular text-grey-50">
               {currencies[currencyPrice.currency_code.toUpperCase()].name}
             </span>
-            <IncludesTaxTooltip />
+            <IncludesTaxTooltip includesTax={currencyPrice?.includes_tax} />
           </div>
         </div>
         <Controller
@@ -57,7 +61,7 @@ const NestedPrice = ({ form, nestedPrice }: Props) => {
             return (
               <PriceFormInput
                 onChange={onChange}
-                amount={value || undefined}
+                amount={value !== null ? value : undefined}
                 currencyCode={currencyPrice.currency_code}
                 errors={errors}
               />
@@ -101,7 +105,7 @@ const NestedPrice = ({ form, nestedPrice }: Props) => {
                   return (
                     <PriceFormInput
                       onChange={onChange}
-                      amount={value || undefined}
+                      amount={value !== null ? value : undefined}
                       currencyCode={currencyPrice.currency_code}
                       errors={errors}
                     />

@@ -4,6 +4,7 @@ import { useAdminProducts } from "medusa-react"
 import qs from "qs"
 import React, { useEffect, useState } from "react"
 import { usePagination, useTable } from "react-table"
+import { useAnalytics } from "../../../context/analytics"
 import { useFeatureFlag } from "../../../context/feature-flag"
 import ProductsFilter from "../../../domain/products/filter-dropdown"
 import Spinner from "../../atoms/spinner"
@@ -19,8 +20,9 @@ const DEFAULT_PAGE_SIZE_TILE_VIEW = 18
 type ProductTableProps = {}
 
 const defaultQueryProps = {
-  fields: "id,title,type,thumbnail,status,handle",
-  expand: "variants,options,variants.prices,variants.options,collection,tags",
+  fields: "id,title,thumbnail,status,handle,collection_id",
+  expand:
+    "variants,options,variants.prices,variants.options,collection,tags,type",
   is_giftcard: false,
 }
 
@@ -28,6 +30,7 @@ const ProductTable: React.FC<ProductTableProps> = () => {
   const location = useLocation()
 
   const { isFeatureEnabled } = useFeatureFlag()
+  const { trackNumberOfProducts } = useAnalytics()
 
   let hiddenColumns = ["sales_channel"]
   if (isFeatureEnabled("sales_channels")) {
@@ -63,9 +66,14 @@ const ProductTable: React.FC<ProductTableProps> = () => {
     setQuery("")
   }
 
-  const { products, isLoading, isRefetching, count } = useAdminProducts({
-    ...queryObject,
-  })
+  const { products, isLoading, isRefetching, count } = useAdminProducts(
+    {
+      ...queryObject,
+    },
+    {
+      onSuccess: ({ count }) => trackNumberOfProducts({ count }),
+    }
+  )
 
   useEffect(() => {
     if (typeof count !== "undefined") {
